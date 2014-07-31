@@ -1,6 +1,5 @@
-/* ========================== */  
-/* Tournament application API */  
-/* ========================== */  
+Tournament application API
+==========================
 
 Endpoints:  
 

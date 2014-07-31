@@ -14,6 +14,8 @@ before do
 	end
 end
 
+# Users
+
 get '/users' do
 	@users = User.all
 	@users.to_json
@@ -127,6 +129,11 @@ post '/tournaments' do
 
 	result = process_save @tournament
 	result.to_json
+end
+
+get '/tournaments' do
+  tournaments = Tournament.all
+  tournaments.to_json
 end
 
 # Generic method for processing simple save actions

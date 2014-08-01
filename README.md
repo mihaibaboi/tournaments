@@ -65,3 +65,21 @@ Payload:
   ]  
 }  
 ```
+
+### Scores
+URL: `PUT /matches/:id/scores`
+Payload:
+``` javascript
+{  
+  "scores":[  
+    {  
+      "user_id":INTEGER,  
+      "games_won":INTEGER  
+    },  
+    {  
+      "user_id":INTEGER,  
+      "games_won":INTEGER  
+    }  
+  ]  
+}  
+```

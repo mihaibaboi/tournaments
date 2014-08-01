@@ -132,6 +132,30 @@ show_tournaments = lambda do
   tournaments.to_json
 end
 
+update_scores = lambda do
+  match = Match.get(params[:id])
+
+  if @request_payload.has_key?('scores')
+    @request_payload['scores'].each do |input_score|
+      score = match.scores.all(:user_id => input_score['user_id'])
+      score.games_won = input_score['games_won']
+    end
+  else
+    status 400
+    return { :status => 'error', :message => 'Request body is invalid' }
+  end
+
+  if match.save
+    status 201
+    result = { :match => match, :scores => match.scores }
+  else
+    status 500
+    result = { :status => 'error', :message => match.errors.to_hash }
+  end
+
+  result
+end
+
 get  '/users',                   &show_users
 get  '/users/:username',         &find_by_username
 post '/users',                   &create_user
@@ -144,6 +168,8 @@ post '/tournaments/:id/matches', &log_match_in_tournament
 
 get  '/tournaments',             &show_tournaments
 post '/tournaments',             &create_tournament
+
+put '/matches/:id/scores',       &update_scores
 
 # Generic method for processing simple save actions
 # @param resource Model - de model that needs to be saved

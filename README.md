@@ -3,7 +3,7 @@ Tournament application API
 
 Endpoints:  
 
--- Users  
+### Users  
 URL: GET /users  
 Payload: none  
 
@@ -20,7 +20,7 @@ Payload:
 }  
 ```
 
--- Tournaments  
+### Tournaments  
 URL: `GET /tournaments`  
 Payload: none  
 
@@ -33,7 +33,7 @@ Payload:
 }  
 ```
 
--- Players  
+### Players  
 URL: `GET /tournaments/{id}/players`  
 Payload: none  
 
@@ -45,7 +45,7 @@ Payload:
 }  
 ```
 
--- Matches  
+### Matches  
 URL: `GET /tournaments/{id}/matches`  
 Payload: none  
 

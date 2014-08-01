@@ -14,127 +14,136 @@ before do
 	end
 end
 
-# Users
-
-get '/users' do
-	@users = User.all
-	@users.to_json
+show_users = lambda do
+  @users = User.all
+  @users.to_json
 end
 
-get '/users/:username' do
-	@users = User.all(:username.like => "%#{params[:username]}%")
-	@users.to_json
+find_by_username = lambda do
+  @users = User.all(:username.like => "%#{params[:username]}%")
+  @users.to_json
 end
 
-post '/users' do
+create_user = lambda do
+  @user = User.new
+  @user.username = @request_payload['username']
+  @user.first_name = @request_payload['first_name'] if @request_payload.has_key?('first_name')
+  @user.last_name = @request_payload['last_name'] if @request_payload.has_key?('last_name')
 
-	@user = User.new
-	@user.username = @request_payload['username']
-	@user.first_name = @request_payload['first_name'] if @request_payload.has_key?('first_name')
-	@user.last_name = @request_payload['last_name'] if @request_payload.has_key?('last_name')
-
-	result = process_save(@user)
-	result.to_json
-
+  result = process_save(@user)
+  result.to_json
 end
 
-post '/tournaments/:id/players' do
-	@tournament = Tournament.get(params[:id])
+add_players_in_tournament = lambda do
+  @tournament = Tournament.get(params[:id])
 
-	users = @request_payload['users']
+  users = @request_payload['users']
 
-	users.each do |user_id|
-		if Player.unique? params[:id], user_id
-			user = User.get(user_id)
-			@tournament.users << user
-		end
-	end
+  users.each do |user_id|
+    if Player.unique? params[:id], user_id
+      user = User.get(user_id)
+      @tournament.users << user
+    end
+  end
 
-	result = process_save(@tournament)
-	result.to_json	
+  result = process_save(@tournament)
+  result.to_json
 end
 
-get '/tournaments/:id/players' do
-	tournament = Tournament.get(params[:id])
+show_players_in_tournament = lambda do
+  tournament = Tournament.get(params[:id])
 
-	resource = { :tournament => tournament, :players => tournament.users }
+  resource = { :tournament => tournament, :players => tournament.users }
 
-	resource.to_json
+  resource.to_json
 end
 
-get '/tournaments/:id/matches' do
-	tournament = Tournament.get(params[:id])
+show_matches_in_tournament = lambda do
+  tournament = Tournament.get(params[:id])
 
-	resource = get_tournament_scores(tournament)
-	resource.to_json
+  resource = get_tournament_scores(tournament)
+  resource.to_json
 end
 
-post '/tournaments/:id/matches' do
-	@tournament = Tournament.get(params[:id])
-	
-	if @tournament.players.empty?
-		return { :status => 'error', :message => 'Tournament has no players' }
-	end
+log_match_in_tournament = lambda do
+  @tournament = Tournament.get(params[:id])
 
-	if @request_payload.has_key?('scores')
+  if @tournament.players.empty?
+    return { :status => 'error', :message => 'Tournament has no players' }
+  end
 
-		@match = Match.new
+  if @request_payload.has_key?('scores')
 
-		scores = @request_payload['scores']
-		sorted = scores.sort_by { | score_hashes | score_hashes['games_won'] }
+    @match = Match.new
 
-		points = 0
-		users = []
-		sorted.each do | result |
+    scores = @request_payload['scores']
+    sorted = scores.sort_by { | score_hashes | score_hashes['games_won'] }
 
-			users << result['user_id']
+    points = 0
+    users = []
+    sorted.each do | result |
 
-			score = Score.new
-			score.user_id = result['user_id']
-			score.games_won = result['games_won']
-			score.points = points
-			points += 1
+      users << result['user_id']
 
-			@match.scores << score
-		end
+      score = Score.new
+      score.user_id = result['user_id']
+      score.games_won = result['games_won']
+      score.points = points
+      points += 1
 
-		@tournament.matches << @match
-	end
+      @match.scores << score
+    end
 
-	if validate_match(@tournament, users)
-		if @tournament.save
-			result = get_tournament_scores @tournament
-		else
-			result = { :status => 'error', :message => @tournament.errors.to_hash }
-		end
-	else
-		result = { :status => 'error', :message => 'Match already exists' }
-	end
+    @tournament.matches << @match
+  end
 
-	result.to_json
+  if validate_match(@tournament, users)
+    if @tournament.save
+      result = get_tournament_scores @tournament
+    else
+      result = { :status => 'error', :message => @tournament.errors.to_hash }
+    end
+  else
+    result = { :status => 'error', :message => 'Match already exists' }
+  end
+
+  result.to_json
 end
 
-post '/tournaments' do
-	@tournament = Tournament.new
-	@tournament.name = @request_payload['name']
+create_tournament = lambda do
+  @tournament = Tournament.new
+  @tournament.name = @request_payload['name']
 
-	if @request_payload.has_key?('users')
-		users = @request_payload['users']
+  if @request_payload.has_key?('users')
+    users = @request_payload['users']
 
-		users.each do |user_id|
-			user = User.get(user_id)
-			@tournament.users << user
-		end
-	end
+    users.each do |user_id|
+      user = User.get(user_id)
+      @tournament.users << user
+    end
+  end
 
-	result = process_save @tournament
-	result.to_json
+  result = process_save @tournament
+  result.to_json
 end
 
-get '/tournaments' do
+show_tournaments = lambda do
   tournaments = Tournament.all
   tournaments.to_json
 end
+
+get  '/users',                   &show_users
+get  '/users/:username',         &find_by_username
+post '/users',                   &create_user
+
+get  '/tournaments/:id/players', &show_players_in_tournament
+post '/tournaments/:id/players', &add_players_in_tournament
+
+get  '/tournaments/:id/matches', &show_matches_in_tournament
+post '/tournaments/:id/matches', &log_match_in_tournament
+
+get  '/tournaments',             &show_tournaments
+post '/tournaments',             &create_tournament
 
 # Generic method for processing simple save actions
 # @param resource Model - de model that needs to be saved

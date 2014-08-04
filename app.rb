@@ -6,6 +6,7 @@ require File.dirname(__FILE__) + '/models/model.rb'
 
 STATUS_SUCCESS = 'success'
 STATUS_FAILED = 'failed'
+STATUS_CREATED = 'created'
 
 before do
 	if request.post? || request.put?
@@ -40,13 +41,20 @@ add_players_in_tournament = lambda do
   users = @request_payload['users']
 
   users.each do |user_id|
-    if Player.unique? params[:id], user_id
+    if Player.unique?(params[:id], user_id)
       user = User.get(user_id)
       @tournament.users << user
     end
   end
 
-  result = process_save(@tournament)
+  if @tournament.save
+    status 201
+    resource = { :tournament => @tournament, :players => @tournament.users }
+    result = { :status => STATUS_CREATED, :resource => resource }
+  else
+    status 500
+    result = { :status => STATUS_FAILED, :message => @tournament.errors.to_hash }
+  end
   result.to_json
 end
 
@@ -176,7 +184,8 @@ put '/matches/:id/scores',       &update_scores
 # @return result Hash - the message that will be displayed to the user
 def process_save(resource)
 	if resource.save
-		{:status => STATUS_SUCCESS, :resource => resource}
+    status 201
+		{:status => STATUS_CREATED, :resource => resource}
 	else
 		{:status => STATUS_FAILED, :errors => resource.errors.to_hash}
 	end

@@ -81,4 +81,57 @@ class Regression < Test::Unit::TestCase
     assert_equal(sample_user.username, result['username'], 'Resource username must match sample_user')
   end
 
+  def test_log_match_in_tournament
+
+    # Create new tournament
+    tournament = Tournament.create(:name => "Test tournament #{Time.now}")
+
+    # Add existing users to tournament
+    users = User.all(:limit => 2).collect(&:id)
+    players_payload = { :tournament_id => tournament.id, :users => users }
+
+    post '/players', players_payload.to_json, 'CONTENT_TYPE' => 'application/json'
+    players_result = JSON.parse(last_response.body)
+
+    # Prepare payload for the Match POST
+    scores = []
+
+    games_won = 3
+    players_result['resource']['players'].each do |player|
+      score = { :user_id => player['id'], :games_won => games_won }
+      scores << score
+      games_won -= 1
+    end
+
+    match_payload = { :tournament_id => tournament.id, :scores => scores }
+
+    post '/matches', match_payload.to_json, 'CONTENT_TYPE' => 'application/json'
+    matches_result = JSON.parse(last_response.body)
+
+    assert_equal(201, last_response.status, 'Status must be 201 Created')
+
+    matches_result['matches'].each do |match|
+      assert_equal(2, match['scores'].to_a.count, 'Match should have two score entries')
+    end
+
+    # Cleanup data from the bottom up
+    created_tournament = Tournament.get(matches_result['tournament']['id'])
+
+    created_tournament.matches.scores.each do |score|
+      score.destroy
+    end
+
+    created_tournament.reload
+    created_tournament.matches.each do |match|
+      match.destroy
+    end
+
+    created_tournament.reload
+    created_tournament.players.each do |player|
+      player.destroy
+    end
+
+    created_tournament.reload
+    created_tournament.destroy
+  end
 end

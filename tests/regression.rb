@@ -27,7 +27,7 @@ class Regression < Test::Unit::TestCase
   def test_find_by_username
     user = User.first
 
-    get "/users/#{user.username}"
+    get "/users/search/#{user.username}"
     result = JSON.parse(last_response.body)
 
     assert_equal(1, result.count, 'User not found')

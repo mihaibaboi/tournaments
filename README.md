@@ -4,13 +4,13 @@ Tournament application API
 Endpoints:  
 
 ### Users  
-URL: GET /users  
+URL: `GET /users`  
 Payload: none  
 
 URL: `GET /users/{id}`
 Payload: none
 
-URL: `GET /users/{username}` - Full username or part of it (results in `'LIKE %{username}%'` statement)  
+URL: `GET /users/search/{username}` - Full username or part of it (results in `'LIKE %{username}%'` statement)  
 Payload: none  
 
 URL: `POST /users`  

@@ -169,21 +169,21 @@ update_scores = lambda do
   result
 end
 
-get  '/users',                   &show_users
-get  '/users/:id',               &show_user_detail
-get  '/users/:username',         &find_by_username
-post '/users',                   &create_user
+get  '/users',                    &show_users
+get  '/users/:id',                &show_user_detail
+get  '/users/search/:username',   &find_by_username
+post '/users',                    &create_user
 
-get  '/tournaments/:id/players', &show_players_in_tournament
-post '/tournaments/:id/players', &add_players_in_tournament
+get  '/tournaments/:id/players',  &show_players_in_tournament
+post '/tournaments/:id/players',  &add_players_in_tournament
 
-get  '/tournaments/:id/matches', &show_matches_in_tournament
-post '/tournaments/:id/matches', &log_match_in_tournament
+get  '/tournaments/:id/matches',  &show_matches_in_tournament
+post '/tournaments/:id/matches',  &log_match_in_tournament
 
-get  '/tournaments',             &show_tournaments
-post '/tournaments',             &create_tournament
+get  '/tournaments',              &show_tournaments
+post '/tournaments',              &create_tournament
 
-put  '/matches/:id/scores',      &update_scores
+put  '/matches/:id/scores',       &update_scores
 
 # Generic method for processing simple save actions
 # @param resource Model - de model that needs to be saved

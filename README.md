@@ -6,13 +6,13 @@ Endpoints:
 ### Users  
 URL: `GET /users`  
 Payload: none  
-
-URL: `GET /users/{id}`
+___
+URL: `GET /users/{id}`  
 Payload: none
-
+___
 URL: `GET /users/search/{username}` - Full username or part of it (results in `'LIKE %{username}%'` statement)  
 Payload: none  
-
+___
 URL: `POST /users`  
 Payload:  
 ``` javascript
@@ -26,7 +26,7 @@ Payload:
 ### Tournaments  
 URL: `GET /tournaments`  
 Payload: none  
-
+___
 URL: `POST /tournaments`  
 Payload:  
 ``` javascript
@@ -39,7 +39,7 @@ Payload:
 ### Players  
 URL: `GET /tournaments/{id}/players`  
 Payload: none  
-
+___
 URL: `POST /players`  
 Payload:  
 ``` javascript
@@ -52,7 +52,7 @@ Payload:
 ### Matches  
 URL: `GET /tournaments/{id}/matches`  
 Payload: none  
-
+___
 URL: `POST /matches`  
 Payload:  
 ``` javascript

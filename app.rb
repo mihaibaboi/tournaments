@@ -41,7 +41,7 @@ create_user = lambda do
 end
 
 add_players_in_tournament = lambda do
-  tournament = Tournament.get(params[:id])
+  tournament = Tournament.get(@request_payload['tournament_id'])
 
   users = @request_payload['users']
 
@@ -79,7 +79,7 @@ show_matches_in_tournament = lambda do
 end
 
 log_match_in_tournament = lambda do
-  tournament = Tournament.get(params[:id])
+  tournament = Tournament.get(@request_payload['tournament_id'])
 
   if tournament.players.empty?
     return { :status => 'error', :message => 'Tournament has no players' }
@@ -112,6 +112,7 @@ log_match_in_tournament = lambda do
 
   if validate_match(tournament, users)
     if tournament.save
+      status 201
       result = get_tournament_scores(tournament)
     else
       result = { :status => 'error', :message => tournament.errors.to_hash }
@@ -175,10 +176,10 @@ get  '/users/search/:username',   &find_by_username
 post '/users',                    &create_user
 
 get  '/tournaments/:id/players',  &show_players_in_tournament
-post '/tournaments/:id/players',  &add_players_in_tournament
+post '/players',                  &add_players_in_tournament
 
 get  '/tournaments/:id/matches',  &show_matches_in_tournament
-post '/tournaments/:id/matches',  &log_match_in_tournament
+post '/matches',                  &log_match_in_tournament
 
 get  '/tournaments',              &show_tournaments
 post '/tournaments',              &create_tournament

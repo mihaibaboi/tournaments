@@ -53,9 +53,9 @@ class Regression < Test::Unit::TestCase
     tournament = Tournament.create(:name => "Test tournament #{Time.now}")
     users = User.all(:limit => 3).collect(&:id)
 
-    payload = { :users => users }
+    payload = { :tournament_id => tournament.id, :users => users }
 
-    post "/tournaments/#{tournament.id}/players", payload.to_json, 'CONTENT_TYPE' => 'application/json'
+    post '/players', payload.to_json, 'CONTENT_TYPE' => 'application/json'
     result = JSON.parse(last_response.body)
 
     assert_equal(201, last_response.status, 'Status must be 201 Created')

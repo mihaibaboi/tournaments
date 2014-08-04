@@ -40,10 +40,11 @@ Payload:
 URL: `GET /tournaments/{id}/players`  
 Payload: none  
 
-URL: `POST /tournaments/{id}/players`  
+URL: `POST /players`  
 Payload:  
 ``` javascript
 {  
+    "tournament_id": INTEGER, //mandatory - The id of the tournament you are adding players to  
     "users": [INTEGER, INTEGER, INTEGER] //mandatory - Array of user_ids that you want to add to the tournament  
 }  
 ```
@@ -52,10 +53,11 @@ Payload:
 URL: `GET /tournaments/{id}/matches`  
 Payload: none  
 
-URL: `POST /tournaments/{id}/matches`  
+URL: `POST /matches`  
 Payload:  
 ``` javascript
 {  
+  "tournament_id": INTEGER,
   "scores":[  
     {  
       "user_id":INTEGER,  
@@ -67,6 +69,48 @@ Payload:
     }  
   ]  
 }  
+```
+
+Response body:
+``` javascript
+{  
+  "tournament": {  
+    "id": INTEGER,  
+    "name": STRING,  
+    "created_at": DATETIME,  
+    "updated_at": DATETIME  
+  },  
+  "matches": [  
+    {  
+      "match": {  
+        "id": INTEGER,  
+          "tournament_id": INTEGER,  
+          "created_at": DATETIME,  
+          "updated_at": DATETIME  
+        },  
+      "scores": [  
+        {  
+          "id": INTEGER,  
+          "match_id": INTEGER,  
+          "user_id": INTEGER,  
+          "games_won": INTEGER,  
+          "points": INTEGER,  
+          "created_at": DATETIME,  
+          "updated_at": DATETIME  
+        },  
+        {  
+          "id": INTEGER,  
+          "match_id": INTEGER,  
+          "user_id": INTEGER,  
+          "games_won": INTEGER,  
+          "points": INTEGER,  
+          "created_at": DATETIME,  
+          "updated_at": DATETIME  
+        }  
+      ]  
+    }  
+  ]  
+}
 ```
 
 ### Scores

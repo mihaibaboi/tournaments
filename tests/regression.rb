@@ -70,4 +70,15 @@ class Regression < Test::Unit::TestCase
     Tournament.get(result['resource']['tournament']['id']).destroy
   end
 
+  def test_show_user_detail
+    sample_user = User.first
+
+    get "/users/#{sample_user.id}"
+    result = JSON.parse(last_response.body)
+
+    assert_equal(200, last_response.status, 'Status must be 200 OK')
+    assert_equal(sample_user.id, result['id'], 'Resource ID must match sample_user')
+    assert_equal(sample_user.username, result['username'], 'Resource username must match sample_user')
+  end
+
 end

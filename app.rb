@@ -25,6 +25,11 @@ find_by_username = lambda do
   users.to_json
 end
 
+show_user_detail = lambda do
+  user = User.get(params[:id])
+  user.to_json
+end
+
 create_user = lambda do
   user = User.new
   user.username = @request_payload['username']
@@ -165,6 +170,7 @@ update_scores = lambda do
 end
 
 get  '/users',                   &show_users
+get  '/users/:id',               &show_user_detail
 get  '/users/:username',         &find_by_username
 post '/users',                   &create_user
 
@@ -177,7 +183,7 @@ post '/tournaments/:id/matches', &log_match_in_tournament
 get  '/tournaments',             &show_tournaments
 post '/tournaments',             &create_tournament
 
-put '/matches/:id/scores',       &update_scores
+put  '/matches/:id/scores',      &update_scores
 
 # Generic method for processing simple save actions
 # @param resource Model - de model that needs to be saved

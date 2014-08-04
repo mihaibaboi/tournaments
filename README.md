@@ -7,6 +7,9 @@ Endpoints:
 URL: GET /users  
 Payload: none  
 
+URL: `GET /users/{id}`
+Payload: none
+
 URL: `GET /users/{username}` - Full username or part of it (results in `'LIKE %{username}%'` statement)  
 Payload: none  
 

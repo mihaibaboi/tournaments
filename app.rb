@@ -152,9 +152,20 @@ end
 update_scores = lambda do
   match = Match.get(params[:id])
 
+  unless match.kind_of?(Match)
+    status 404
+    return { status: 'error', message: 'This match is not in the database' }.to_json
+  end
+
   if @request_payload.has_key?('scores')
     @request_payload['scores'].each do |input_score|
       score = match.scores.first(:user_id => input_score['user_id'])
+
+      unless score.kind_of?(Score)
+        status 404
+        return { status: 'error', message: 'Could not find the given user in this match' }.to_json
+      end
+
       score.games_won = input_score['games_won']
     end
   else
@@ -163,10 +174,6 @@ update_scores = lambda do
   end
 
   if match.save
-    # puts '--------------------------------------------------'
-    # match.inspect
-    # puts '--------------------------------------------------'
-    # puts '--------------------------------------------------'
     status 201
     result = { :match => match, :scores => match.scores }.to_json
   else

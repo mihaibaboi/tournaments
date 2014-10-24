@@ -29,6 +29,7 @@ class Tournament
 	has n, :players
 	has n, :users, :through => :players
 	has n, :matches
+  has n, :scores, :through => :matches
 end
 
 class Player
@@ -42,7 +43,7 @@ class Player
 	belongs_to :user, :key => true
 	belongs_to :tournament, :key => true
 
-	def self.unique? tournament_id, user_id
+	def self.unique?(tournament_id, user_id)
 		player = Player.all(:tournament_id => tournament_id, :user_id => user_id)
 		player.empty?
 	end
@@ -76,8 +77,9 @@ class Score
 
 	belongs_to :match
 	belongs_to :user
+  has 1, :tournament, :through => :match
 
-	def self.unique? match_id, user_id
+	def self.unique? (match_id, user_id)
 		score = Score.all(:match_id => match_id, :user_id => user_id)
 		score.empty?
 	end

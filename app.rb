@@ -85,39 +85,42 @@ log_match_in_tournament = lambda do
     return { :status => 'error', :message => 'Tournament has no players' }
   end
 
-  if @request_payload.has_key?('scores')
+  unless @request_payload.has_key?('scores')
+    status 400
+    return { :status => 'error', :message => 'Payload should contain the :scores key' }
+  end
 
-    match = Match.new
+  match = Match.new
 
-    scores = @request_payload['scores']
-    sorted = scores.sort_by { | score_hashes | score_hashes['games_won'] }
+  scores = @request_payload['scores']
+  sorted = scores.sort_by { | score_hashes | score_hashes['games_won'] }
 
-    points = 0
-    users = []
-    sorted.each do | result |
+  points = 0
+  users = []
+  sorted.each do | result |
 
-      users << result['user_id']
+    users << result['user_id']
 
-      score = Score.new
-      score.user_id = result['user_id']
-      score.games_won = result['games_won']
-      score.points = points
-      points += 1
+    score = Score.new
+    score.user_id = result['user_id']
+    score.games_won = result['games_won']
+    score.points = points
+    points += 1
 
-      match.scores << score
-    end
-
-    tournament.matches << match
+    match.scores << score
   end
 
   if validate_match(tournament, users)
+    tournament.matches << match
     if tournament.save
       status 201
       result = get_tournament_scores(tournament)
     else
+      status 400
       result = { :status => 'error', :message => tournament.errors.to_hash }
     end
   else
+    status 400
     result = { :status => 'error', :message => 'Match already exists' }
   end
 
@@ -203,8 +206,9 @@ end
 # @param users Array - the two players in the match
 # @return Boolean - true if the match doesn't exist, false otherwise
 def validate_match(tournament, users)
-	tournament.matches.each do | match |
-		scores = match.scores.all(:user_id => users)
+	tournament.matches.each do | existing_match |
+		scores = existing_match.scores.all(:user_id => users)
+
 		if scores.count == 2
 			return false
 		end

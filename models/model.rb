@@ -1,4 +1,4 @@
-DataMapper.setup(:default, 'mysql://root:pass21@localhost/tournaments')
+DataMapper.setup(:default, 'mysql://tournament:pass21@localhost/tournaments')
 
 class User
 

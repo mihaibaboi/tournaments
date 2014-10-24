@@ -154,7 +154,7 @@ update_scores = lambda do
 
   if @request_payload.has_key?('scores')
     @request_payload['scores'].each do |input_score|
-      score = match.scores.all(:user_id => input_score['user_id'])
+      score = match.scores.first(:user_id => input_score['user_id'])
       score.games_won = input_score['games_won']
     end
   else
@@ -163,8 +163,12 @@ update_scores = lambda do
   end
 
   if match.save
+    # puts '--------------------------------------------------'
+    # match.inspect
+    # puts '--------------------------------------------------'
+    # puts '--------------------------------------------------'
     status 201
-    result = { :match => match, :scores => match.scores }
+    result = { :match => match, :scores => match.scores }.to_json
   else
     status 500
     result = { :status => 'error', :message => match.errors.to_hash }

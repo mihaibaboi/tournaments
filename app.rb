@@ -167,6 +167,7 @@ update_scores = lambda do
       end
 
       score.games_won = input_score['games_won']
+      match.scores << score
     end
   else
     status 400

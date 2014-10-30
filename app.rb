@@ -185,21 +185,53 @@ update_scores = lambda do
   result
 end
 
-get  '/users',                    &show_users
-get  '/users/:id',                &show_user_detail
-get  '/users/search/:username',   &find_by_username
-post '/users',                    &create_user
+delete_user = lambda do
+  user = User.get(params[:id])
+  result = process_delete user
+  result.to_json
+end
 
-get  '/tournaments/:id/players',  &show_players_in_tournament
-post '/players',                  &add_players_in_tournament
+delete_tournament = lambda do
+  tournament = Tournament.get(params[:id])
 
-get  '/tournaments/:id/matches',  &show_matches_in_tournament
-post '/matches',                  &log_match_in_tournament
+  result = process_delete tournament
+  result.to_json
+end
 
-get  '/tournaments',              &show_tournaments
-post '/tournaments',              &create_tournament
+delete_match = lambda do
+  match = Match.get(params[:id])
 
-put  '/matches/:id/scores',       &update_scores
+  result = process_delete match
+  result.to_json
+end
+
+delete_score = lambda do
+  score = Score.get(params[:id])
+
+  result = process_delete score
+  result.to_json
+end
+
+get    '/users',                    &show_users
+get    '/users/:id',                &show_user_detail
+get    '/users/search/:username',   &find_by_username
+post   '/users',                    &create_user
+delete '/users/:id',                &delete_user
+
+get    '/tournaments/:id/players',  &show_players_in_tournament
+post   '/players',                  &add_players_in_tournament
+delete '/tournaments/:id',          &delete_tournament
+
+get    '/tournaments/:id/matches',  &show_matches_in_tournament
+post   '/matches',                  &log_match_in_tournament
+delete '/matches/:id',              &delete_match
+
+get    '/tournaments',              &show_tournaments
+post   '/tournaments',              &create_tournament
+delete '/tournaments/:id',          &delete_tournament
+
+put    '/matches/:id/scores',       &update_scores
+delete '/scores',                   &delete_score
 
 # Generic method for processing simple save actions
 # @param resource Model - de model that needs to be saved
@@ -239,4 +271,30 @@ def get_tournament_scores(tournament)
 	end
 
 	resource = { :tournament => tournament, :matches => matches }
+end
+
+def process_delete(resource)
+  begin
+    test = resource.destroy
+  rescue DataMapper::Exception => e
+    puts '==================================================='
+    puts e.inspect
+    puts '==================================================='
+  end
+
+  puts test.inspect
+
+  if resource.destroy
+    status 204
+    result = {}
+  else
+    status 500
+    result = { status: 'error', message: resource.errors.to_hash }
+  end
+
+  # puts '------------------------'
+  # puts resource.errors.inspect
+  # puts '------------------------'
+
+  result
 end

@@ -13,7 +13,7 @@ class User
 	property :created_at, 		DateTime
 	property :updated_at,		DateTime
 
-	has n, :players
+	has n, :players, constraint: :destroy
 	has n, :tournaments, :through => :players
 end
 
@@ -26,10 +26,10 @@ class Tournament
 	property :created_at, 	DateTime
 	property :updated_at,	DateTime
 
-	has n, :players
-	has n, :users, :through => :players
-	has n, :matches
-  has n, :scores, :through => :matches
+	has n, :players, constraint: :destroy
+	has n, :users, :through => :players, constraint: :skip
+	has n, :matches, constraint: :destroy
+  # has n, :scores, :through => :matches, constraint: :destroy
 end
 
 class Player
@@ -59,7 +59,7 @@ class Match
 	property :created_at, 		DateTime
 	property :updated_at, 		DateTime
 
-	has n, :scores
+	has n, :scores, constraint: :destroy
 	belongs_to :tournament
 end
 
@@ -77,7 +77,7 @@ class Score
 
 	belongs_to :match
 	belongs_to :user
-  has 1, :tournament, :through => :match
+  # has 1, :tournament, :through => :match
 
 	def self.unique? (match_id, user_id)
 		score = Score.all(:match_id => match_id, :user_id => user_id)

@@ -212,6 +212,13 @@ delete_score = lambda do
   result.to_json
 end
 
+delete_player = lambda do
+  player = Player.get(params[:id])
+
+  result = process_delete player
+  result.to_json
+end
+
 get    '/users',                    &show_users
 get    '/users/:id',                &show_user_detail
 get    '/users/search/:username',   &find_by_username
@@ -220,7 +227,7 @@ delete '/users/:id',                &delete_user
 
 get    '/tournaments/:id/players',  &show_players_in_tournament
 post   '/players',                  &add_players_in_tournament
-delete '/tournaments/:id',          &delete_tournament
+delete '/players/:id',              &delete_player
 
 get    '/tournaments/:id/matches',  &show_matches_in_tournament
 post   '/matches',                  &log_match_in_tournament

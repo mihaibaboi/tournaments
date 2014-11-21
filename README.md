@@ -124,6 +124,7 @@ Payload:
     "tournament_id": INTEGER,
     "scheduled_at": DATETIME
   }
+}
 ```
 
 Response body:

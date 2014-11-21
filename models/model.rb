@@ -54,8 +54,9 @@ class Match
 
 	include DataMapper::Resource
 
-	property :id, 				Serial
+	property :id, 						Serial
 	property :tournament_id, 	Integer
+	property :scheduled_at,		DateTime
 	property :created_at, 		DateTime
 	property :updated_at, 		DateTime
 

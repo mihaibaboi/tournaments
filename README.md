@@ -58,6 +58,7 @@ Payload:
 ``` javascript
 {  
   "tournament_id": INTEGER,
+  "scheduled_at", DATETIME,
   "scores":[  
     {  
       "user_id":INTEGER,  
@@ -76,7 +77,8 @@ Response body:
 {  
   "tournament": {  
     "id": INTEGER,  
-    "name": STRING,  
+    "name": STRING,
+    "scheduled_at": DATETIME,
     "created_at": DATETIME,  
     "updated_at": DATETIME  
   },  
@@ -110,6 +112,31 @@ Response body:
       ]  
     }  
   ]  
+}
+```
+
+___
+URL: `PUT /matches/:id`
+Payload:
+``` javascript
+{
+  "match": {
+    "tournament_id": INTEGER,
+    "scheduled_at": DATETIME
+  }
+```
+
+Response body:
+```javascript
+{
+    "status": "created",
+    "resource": {
+        "id": INTEGER,
+        "tournament_id": INTEGER,
+        "scheduled_at": DATETIME,
+        "created_at": DATETIME,
+        "updated_at": DATETIME
+    }
 }
 ```
 

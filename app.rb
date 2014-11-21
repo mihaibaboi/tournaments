@@ -219,6 +219,23 @@ delete_player = lambda do
   result.to_json
 end
 
+update_match = lambda do
+
+  match = Match.get(params[:id])
+
+  unless match.kind_of?(Match)
+    status 404
+    return { status: 'error', message: 'This match is not in the database' }.to_json
+  end
+
+  if @request_payload.has_key? 'match'
+    match.attributes = @request_payload['match']
+  end
+
+  result = process_save(match)
+  result.to_json
+end
+
 get    '/users',                    &show_users
 get    '/users/:id',                &show_user_detail
 get    '/users/search/:username',   &find_by_username
@@ -231,6 +248,7 @@ delete '/players/:id',              &delete_player
 
 get    '/tournaments/:id/matches',  &show_matches_in_tournament
 post   '/matches',                  &log_match_in_tournament
+put    '/matches/:id',              &update_match
 delete '/matches/:id',              &delete_match
 
 get    '/tournaments',              &show_tournaments
@@ -281,16 +299,6 @@ def get_tournament_scores(tournament)
 end
 
 def process_delete(resource)
-  begin
-    test = resource.destroy
-  rescue DataMapper::Exception => e
-    puts '==================================================='
-    puts e.inspect
-    puts '==================================================='
-  end
-
-  puts test.inspect
-
   if resource.destroy
     status 204
     result = {}
@@ -298,10 +306,6 @@ def process_delete(resource)
     status 500
     result = { status: 'error', message: resource.errors.to_hash }
   end
-
-  # puts '------------------------'
-  # puts resource.errors.inspect
-  # puts '------------------------'
 
   result
 end

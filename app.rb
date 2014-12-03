@@ -92,6 +92,10 @@ log_match_in_tournament = lambda do
 
   match = Match.new
 
+  if @request_payload['scheduled_at']
+    match.scheduled_at = @request_payload['scheduled_at']
+  end
+
   scores = @request_payload['scores']
   sorted = scores.sort_by { | score_hashes | score_hashes['games_won'] }
 

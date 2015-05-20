@@ -92,6 +92,10 @@ log_match_in_tournament = lambda do
 
   match = Match.new
 
+  if @request_payload['scheduled_at']
+    match.scheduled_at = @request_payload['scheduled_at']
+  end
+
   scores = @request_payload['scores']
   sorted = scores.sort_by { | score_hashes | score_hashes['games_won'] }
 
@@ -167,6 +171,7 @@ update_scores = lambda do
       end
 
       score.games_won = input_score['games_won']
+      match.scores << score
     end
   else
     status 400
@@ -184,21 +189,78 @@ update_scores = lambda do
   result
 end
 
-get  '/users',                    &show_users
-get  '/users/:id',                &show_user_detail
-get  '/users/search/:username',   &find_by_username
-post '/users',                    &create_user
+delete_user = lambda do
+  user = User.get(params[:id])
+  result = process_delete user
+  result.to_json
+end
 
-get  '/tournaments/:id/players',  &show_players_in_tournament
-post '/players',                  &add_players_in_tournament
+delete_tournament = lambda do
+  tournament = Tournament.get(params[:id])
 
-get  '/tournaments/:id/matches',  &show_matches_in_tournament
-post '/matches',                  &log_match_in_tournament
+  result = process_delete tournament
+  result.to_json
+end
 
-get  '/tournaments',              &show_tournaments
-post '/tournaments',              &create_tournament
+delete_match = lambda do
+  match = Match.get(params[:id])
 
-put  '/matches/:id/scores',       &update_scores
+  result = process_delete match
+  result.to_json
+end
+
+delete_score = lambda do
+  score = Score.get(params[:id])
+
+  result = process_delete score
+  result.to_json
+end
+
+delete_player = lambda do
+  player = Player.get(params[:id])
+
+  result = process_delete player
+  result.to_json
+end
+
+update_match = lambda do
+
+  match = Match.get(params[:id])
+
+  unless match.kind_of?(Match)
+    status 404
+    return { status: 'error', message: 'This match is not in the database' }.to_json
+  end
+
+  if @request_payload.has_key? 'match'
+    match.attributes = @request_payload['match']
+  end
+
+  result = process_save(match)
+  result.to_json
+end
+
+get    '/users',                    &show_users
+get    '/users/:id',                &show_user_detail
+get    '/users/search/:username',   &find_by_username
+post   '/users',                    &create_user
+delete '/users/:id',                &delete_user
+
+get    '/tournaments/:id/players',  &show_players_in_tournament
+post   '/players',                  &add_players_in_tournament
+delete '/players/:id',              &delete_player
+
+get    '/tournaments/:id/matches',  &show_matches_in_tournament
+post   '/matches',                  &log_match_in_tournament
+put    '/matches/:id',              &update_match
+delete '/matches/:id',              &delete_match
+
+get    '/tournaments',              &show_tournaments
+post   '/tournaments',              &create_tournament
+delete '/tournaments/:id',          &delete_tournament
+
+put    '/matches/:id/scores',       &update_scores
+delete '/scores',                   &delete_score
 
 # Generic method for processing simple save actions
 # @param resource Model - de model that needs to be saved
@@ -238,4 +300,16 @@ def get_tournament_scores(tournament)
 	end
 
 	resource = { :tournament => tournament, :matches => matches }
+end
+
+def process_delete(resource)
+  if resource.destroy
+    status 204
+    result = {}
+  else
+    status 500
+    result = { status: 'error', message: resource.errors.to_hash }
+  end
+
+  result
 end
